@@ -13,9 +13,12 @@ class NoteController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
     public function index()
     {
         //
+        $notes = Note::orderBy('id','desc')->paginate(3);
+        return view('Notes.index', compact('notes'));
     }
 
     /**
@@ -40,20 +43,18 @@ class NoteController extends Controller
 
     public function store(Request $request)
     {
-        // Validation 
-        // $this->validate($request, array(
+         
+        $this->validate($request, [
+            'title' => 'required',
+            'body' => 'required|max:100'
 
-        //     'title' => 'required',
-
-        //     'body' => 'required|max:100'
-
-        // ));
+        ]);
 
         // Save to database
 
         $notes = new Note;
 
-        $notes->title = $request->tittle;
+        $notes->title = $request->title;
 
         $notes->body = $request->body;
 
@@ -62,7 +63,7 @@ class NoteController extends Controller
 
         // Return View
 
-        return redirect()->route('Notes.create');
+        return redirect()->route('Notes.index');
 
     }
 
@@ -87,6 +88,8 @@ class NoteController extends Controller
     public function edit($id)
     {
         //
+        $notes = Note::find($id);
+        return view('Notes.edit', compact('notes'));    
     }
 
     /**
@@ -99,6 +102,27 @@ class NoteController extends Controller
     public function update(Request $request, $id)
     {
         //
+
+        $notes = Note::find($id);
+
+        $this->validate($request, [
+            'title' => 'required',
+            'body' => 'required|max:100'
+
+        ]);
+
+        // Save to database
+
+        $notes->title = $request->title;
+
+        $notes->body = $request->body;
+
+
+        $notes->save();
+
+        // Return View
+
+        return redirect()->route('Notes.index');
     }
 
     /**
@@ -110,5 +134,8 @@ class NoteController extends Controller
     public function destroy($id)
     {
         //
+        $note = Note::find($id);
+        $note->delete();
+        return redirect()->route('Notes.index');
     }
 }
